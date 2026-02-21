@@ -1,0 +1,52 @@
+{
+  "agent_name": "Health Calculator Agent",
+  "agent_id": "69996137730bbd74d53e89d7",
+  "description": "Processes user biometric inputs (height, weight, age, activity level) to compute BMI, daily caloric needs, and provides AI-generated health insights and recommendations.",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "bmi": {
+      "value": "number",
+      "category": "string",
+      "healthy_range": "string"
+    },
+    "bmr": "number",
+    "tdee": "number",
+    "calorie_recommendations": {
+      "maintain": "number",
+      "mild_loss": "number",
+      "weight_loss": "number",
+      "mild_gain": "number",
+      "weight_gain": "number"
+    },
+    "insights": [
+      "string"
+    ],
+    "recommendations": [
+      "string"
+    ]
+  },
+  "example_response": {
+    "bmi": {
+      "value": 0,
+      "category": "sample string",
+      "healthy_range": "sample string"
+    },
+    "bmr": 0,
+    "tdee": 0,
+    "calorie_recommendations": {
+      "maintain": 0,
+      "mild_loss": 0,
+      "weight_loss": 0,
+      "mild_gain": 0,
+      "weight_gain": 0
+    },
+    "insights": [
+      "sample string"
+    ],
+    "recommendations": [
+      "sample string"
+    ]
+  }
+}

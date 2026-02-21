@@ -1,0 +1,22 @@
+{
+  "agent_name": "AI Chatbot Agent",
+  "agent_id": "69996137a63b170a3b8170e3",
+  "description": "Conversational health and fitness assistant that answers user questions about workouts, nutrition, injury prevention, and general wellness.",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "response": "string",
+    "suggestions": [
+      "string"
+    ],
+    "disclaimer": "string"
+  },
+  "example_response": {
+    "response": "sample string",
+    "suggestions": [
+      "sample string"
+    ],
+    "disclaimer": "sample string"
+  }
+}

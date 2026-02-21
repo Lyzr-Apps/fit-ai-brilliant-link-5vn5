@@ -1,0 +1,47 @@
+{
+  "project": "FitVerse",
+  "status": "agents_created",
+  "agents": {
+    "diet_plan_agent": {
+      "agent_id": "69996137730bbd74d53e89d5",
+      "name": "Diet Plan Agent",
+      "model": "gpt-4.1",
+      "provider": "openai",
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "type": "json",
+      "file_output": false,
+      "image_output": false,
+      "voice": false
+    },
+    "health_calculator_agent": {
+      "agent_id": "69996137730bbd74d53e89d7",
+      "name": "Health Calculator Agent",
+      "model": "gpt-4.1",
+      "provider": "openai",
+      "temperature": 0.3,
+      "top_p": 1,
+      "type": "json",
+      "file_output": false,
+      "image_output": false,
+      "voice": false
+    },
+    "ai_chatbot_agent": {
+      "agent_id": "69996137a63b170a3b8170e3",
+      "name": "AI Chatbot Agent",
+      "model": "gpt-4.1",
+      "provider": "openai",
+      "temperature": 0.5,
+      "top_p": 0.95,
+      "type": "json",
+      "file_output": false,
+      "image_output": false,
+      "voice": false
+    }
+  },
+  "agent_ids": {
+    "diet_plan_agent": "69996137730bbd74d53e89d5",
+    "health_calculator_agent": "69996137730bbd74d53e89d7",
+    "ai_chatbot_agent": "69996137a63b170a3b8170e3"
+  }
+}

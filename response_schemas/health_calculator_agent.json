@@ -1,0 +1,47 @@
+{
+  "agent_name": "Health Calculator Agent",
+  "agent_id": "69996137730bbd74d53e89d7",
+  "agent_type": "json",
+  "accessor": "json",
+  "has_module_outputs": false,
+  "response_schema": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "HealthCalculatorResponse",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "bmi": {
+            "type": "object",
+            "properties": {
+              "value": { "type": "number" },
+              "category": { "type": "string" },
+              "healthy_range": { "type": "string" }
+            },
+            "required": ["value", "category", "healthy_range"],
+            "additionalProperties": false
+          },
+          "bmr": { "type": "number" },
+          "tdee": { "type": "number" },
+          "calorie_recommendations": {
+            "type": "object",
+            "properties": {
+              "maintain": { "type": "number" },
+              "mild_loss": { "type": "number" },
+              "weight_loss": { "type": "number" },
+              "mild_gain": { "type": "number" },
+              "weight_gain": { "type": "number" }
+            },
+            "required": ["maintain", "mild_loss", "weight_loss", "mild_gain", "weight_gain"],
+            "additionalProperties": false
+          },
+          "insights": { "type": "array", "items": { "type": "string" } },
+          "recommendations": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["bmi", "bmr", "tdee", "calorie_recommendations", "insights", "recommendations"],
+        "additionalProperties": false
+      }
+    }
+  }
+}

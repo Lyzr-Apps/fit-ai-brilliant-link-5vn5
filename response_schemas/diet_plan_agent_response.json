@@ -1,0 +1,72 @@
+{
+  "agent_name": "Diet Plan Agent",
+  "agent_id": "69996137730bbd74d53e89d5",
+  "description": "Generates personalized weekly diet plans based on user's fitness goals, dietary preferences, caloric needs, and restrictions. Returns structured meal plans with macros.",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "plan_title": "string",
+    "overview": "string",
+    "daily_calories_target": "number",
+    "weekly_plan": [
+      {
+        "day": "string",
+        "meals": [
+          {
+            "meal_type": "string",
+            "meal_name": "string",
+            "ingredients": [
+              "string"
+            ],
+            "calories": "number",
+            "protein_g": "number",
+            "carbs_g": "number",
+            "fats_g": "number"
+          }
+        ],
+        "daily_total": {
+          "calories": "number",
+          "protein_g": "number",
+          "carbs_g": "number",
+          "fats_g": "number"
+        }
+      }
+    ],
+    "tips": [
+      "string"
+    ]
+  },
+  "example_response": {
+    "plan_title": "sample string",
+    "overview": "sample string",
+    "daily_calories_target": 0,
+    "weekly_plan": [
+      {
+        "day": "sample string",
+        "meals": [
+          {
+            "meal_type": "sample string",
+            "meal_name": "sample string",
+            "ingredients": [
+              "sample string"
+            ],
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fats_g": 0
+          }
+        ],
+        "daily_total": {
+          "calories": 0,
+          "protein_g": 0,
+          "carbs_g": 0,
+          "fats_g": 0
+        }
+      }
+    ],
+    "tips": [
+      "sample string"
+    ]
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "project": "FitVerse",
+  "description": "Health & Fitness Platform with Diet Planning, Health Calculations, and AI Chatbot",
+  "workflow": {
+    "nodes": [
+      {
+        "id": "input_node",
+        "type": "Input",
+        "label": "User Input",
+        "nodeCategory": "input"
+      },
+      {
+        "id": "diet_plan_agent",
+        "type": "Agent",
+        "label": "Diet Plan Agent",
+        "nodeCategory": "agent",
+        "agent_id": "69996137730bbd74d53e89d5",
+        "config": {
+          "name": "Diet Plan Agent",
+          "model": "gpt-4.1",
+          "provider": "openai",
+          "temperature": 0.6,
+          "top_p": 0.95,
+          "type": "json",
+          "file_output": false,
+          "image_output": false,
+          "voice": false
+        }
+      },
+      {
+        "id": "health_calculator_agent",
+        "type": "Agent",
+        "label": "Health Calculator Agent",
+        "nodeCategory": "agent",
+        "agent_id": "69996137730bbd74d53e89d7",
+        "config": {
+          "name": "Health Calculator Agent",
+          "model": "gpt-4.1",
+          "provider": "openai",
+          "temperature": 0.3,
+          "top_p": 1,
+          "type": "json",
+          "file_output": false,
+          "image_output": false,
+          "voice": false
+        }
+      },
+      {
+        "id": "ai_chatbot_agent",
+        "type": "Agent",
+        "label": "AI Chatbot Agent",
+        "nodeCategory": "agent",
+        "agent_id": "69996137a63b170a3b8170e3",
+        "config": {
+          "name": "AI Chatbot Agent",
+          "model": "gpt-4.1",
+          "provider": "openai",
+          "temperature": 0.5,
+          "top_p": 0.95,
+          "type": "json",
+          "file_output": false,
+          "image_output": false,
+          "voice": false
+        }
+      },
+      {
+        "id": "output_node",
+        "type": "Output",
+        "label": "Agent Response",
+        "nodeCategory": "end"
+      }
+    ],
+    "edges": [
+      { "source": "input_node", "target": "diet_plan_agent" },
+      { "source": "input_node", "target": "health_calculator_agent" },
+      { "source": "input_node", "target": "ai_chatbot_agent" },
+      { "source": "diet_plan_agent", "target": "output_node" },
+      { "source": "health_calculator_agent", "target": "output_node" },
+      { "source": "ai_chatbot_agent", "target": "output_node" }
+    ]
+  },
+  "agent_ids": {
+    "diet_plan_agent": "69996137730bbd74d53e89d5",
+    "health_calculator_agent": "69996137730bbd74d53e89d7",
+    "ai_chatbot_agent": "69996137a63b170a3b8170e3"
+  }
+}

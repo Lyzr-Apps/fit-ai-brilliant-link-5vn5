@@ -1,0 +1,24 @@
+{
+  "agent_name": "AI Chatbot Agent",
+  "agent_id": "69996137a63b170a3b8170e3",
+  "agent_type": "json",
+  "accessor": "json",
+  "has_module_outputs": false,
+  "response_schema": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "ChatbotResponse",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "response": { "type": "string" },
+          "suggestions": { "type": "array", "items": { "type": "string" } },
+          "disclaimer": { "type": "string" }
+        },
+        "required": ["response", "suggestions", "disclaimer"],
+        "additionalProperties": false
+      }
+    }
+  }
+}

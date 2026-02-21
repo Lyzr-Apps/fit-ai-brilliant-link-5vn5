@@ -1,0 +1,64 @@
+{
+  "agent_name": "Diet Plan Agent",
+  "agent_id": "69996137730bbd74d53e89d5",
+  "agent_type": "json",
+  "accessor": "json",
+  "has_module_outputs": false,
+  "response_schema": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "DietPlanResponse",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "plan_title": { "type": "string" },
+          "overview": { "type": "string" },
+          "daily_calories_target": { "type": "number" },
+          "weekly_plan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "day": { "type": "string" },
+                "meals": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "meal_type": { "type": "string" },
+                      "meal_name": { "type": "string" },
+                      "ingredients": { "type": "array", "items": { "type": "string" } },
+                      "calories": { "type": "number" },
+                      "protein_g": { "type": "number" },
+                      "carbs_g": { "type": "number" },
+                      "fats_g": { "type": "number" }
+                    },
+                    "required": ["meal_type", "meal_name", "ingredients", "calories", "protein_g", "carbs_g", "fats_g"],
+                    "additionalProperties": false
+                  }
+                },
+                "daily_total": {
+                  "type": "object",
+                  "properties": {
+                    "calories": { "type": "number" },
+                    "protein_g": { "type": "number" },
+                    "carbs_g": { "type": "number" },
+                    "fats_g": { "type": "number" }
+                  },
+                  "required": ["calories", "protein_g", "carbs_g", "fats_g"],
+                  "additionalProperties": false
+                }
+              },
+              "required": ["day", "meals", "daily_total"],
+              "additionalProperties": false
+            }
+          },
+          "tips": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["plan_title", "overview", "daily_calories_target", "weekly_plan", "tips"],
+        "additionalProperties": false
+      }
+    }
+  }
+}
