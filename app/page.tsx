@@ -76,7 +76,7 @@ interface MockUser {
   joined: string
 }
 
-type Screen = 'landing' | 'dashboard' | 'aitools' | 'blog' | 'profile' | 'admin'
+type Screen = 'landing' | 'dashboard' | 'dietplan' | 'aitools' | 'blog' | 'profile' | 'admin'
 
 // ── Colors ──
 const C = {
@@ -159,6 +159,7 @@ function Sidebar({ screen, setScreen, open, setOpen }: {
 }) {
   const items: { key: Screen; label: string; icon: React.ReactNode }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: <RiDashboardLine size={20} /> },
+    { key: 'dietplan', label: 'Diet Planning', icon: <RiLeafLine size={20} /> },
     { key: 'aitools', label: 'AI Tools', icon: <RiRobot2Line size={20} /> },
     { key: 'blog', label: 'Blog', icon: <RiArticleLine size={20} /> },
     { key: 'profile', label: 'Profile', icon: <RiUserLine size={20} /> },
@@ -221,7 +222,7 @@ function Sidebar({ screen, setScreen, open, setOpen }: {
 // ── Top Header ──
 function TopHeader({ setOpen, screen }: { setOpen: (b: boolean) => void; screen: Screen }) {
   const titles: Record<Screen, string> = {
-    landing: '', dashboard: 'Dashboard', aitools: 'AI Tools', blog: 'Blog', profile: 'Profile', admin: 'Admin Panel',
+    landing: '', dashboard: 'Dashboard', dietplan: 'AI Diet Planning', aitools: 'AI Tools', blog: 'Blog', profile: 'Profile', admin: 'Admin Panel',
   }
   return (
     <header
@@ -381,46 +382,9 @@ function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
 }
 
 // ── Dashboard ──
-function DashboardScreen() {
-  const [showDietModal, setShowDietModal] = useState(false)
-  const [dietLoading, setDietLoading] = useState(false)
-  const [dietPlan, setDietPlan] = useState<DietPlanResponse | null>(null)
-  const [dietError, setDietError] = useState<string | null>(null)
-  const [selectedDay, setSelectedDay] = useState(0)
-
-  // Diet form
-  const [goal, setGoal] = useState('Weight Loss')
-  const [preference, setPreference] = useState('No Preference')
-  const [restrictions, setRestrictions] = useState('')
-  const [calorieTarget, setCalorieTarget] = useState('2000')
-
+function DashboardScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const maxWeight = Math.max(...WEIGHT_HISTORY.map(w => w.value))
   const minWeight = Math.min(...WEIGHT_HISTORY.map(w => w.value))
-
-  const handleGenerate = async () => {
-    setDietLoading(true)
-    setDietError(null)
-    setShowDietModal(false)
-    try {
-      const msg = `Generate a personalized weekly diet plan with the following requirements:
-- Fitness Goal: ${goal}
-- Dietary Preference: ${preference}
-- Allergies/Restrictions: ${restrictions || 'None'}
-- Daily Calorie Target: ${calorieTarget} calories
-Please provide a complete 7-day meal plan with breakfast, lunch, dinner, and snacks for each day, including macro information for every meal.`
-      const result = await callAIAgent(msg, DIET_PLAN_AGENT_ID)
-      const data = parseAgentResult(result)
-      if (data) {
-        setDietPlan(data as DietPlanResponse)
-        setSelectedDay(0)
-      } else {
-        setDietError('Failed to generate diet plan. Please try again.')
-      }
-    } catch {
-      setDietError('An error occurred. Please try again.')
-    }
-    setDietLoading(false)
-  }
 
   return (
     <div className="space-y-6">
@@ -460,167 +424,361 @@ Please provide a complete 7-day meal plan with breakfast, lunch, dinner, and sna
             <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ background: C.accent + '33' }}>
               <RiLeafLine size={24} style={{ color: C.accent }} />
             </div>
-            <h3 className="text-lg font-bold tracking-tight mb-2" style={{ color: C.fg }}>Generate Diet Plan</h3>
+            <h3 className="text-lg font-bold tracking-tight mb-2" style={{ color: C.fg }}>AI Diet Planning</h3>
             <p className="text-sm leading-relaxed mb-4" style={{ color: C.mutedFg }}>
               Get a personalized weekly meal plan powered by AI, tailored to your goals and preferences.
             </p>
           </div>
           <button
-            onClick={() => setShowDietModal(true)}
+            onClick={() => onNavigate('dietplan')}
             className="w-full px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-[1.02]"
             style={{ background: C.accent, color: '#fff', boxShadow: `0 0 20px ${C.accent}44` }}
           >
-            Generate Now
+            Generate Diet Plan
           </button>
         </div>
       </div>
 
-      {/* Diet Modal */}
-      {showDietModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
-          <div className="w-full max-w-md rounded-2xl p-6" style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold tracking-tight" style={{ color: C.fg }}>Diet Plan Preferences</h3>
-              <button onClick={() => setShowDietModal(false)} style={{ color: C.mutedFg }}><RiCloseLine size={22} /></button>
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <button
+          onClick={() => onNavigate('dietplan')}
+          className="rounded-xl p-5 text-left transition-all duration-200 hover:scale-[1.02]"
+          style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: '#22c55e22' }}>
+            <RiLeafLine size={20} style={{ color: '#4ade80' }} />
+          </div>
+          <div className="text-sm font-bold tracking-tight" style={{ color: C.fg }}>Diet Planning</div>
+          <div className="text-xs mt-1" style={{ color: C.mutedFg }}>Generate AI meal plans</div>
+        </button>
+        <button
+          onClick={() => onNavigate('aitools')}
+          className="rounded-xl p-5 text-left transition-all duration-200 hover:scale-[1.02]"
+          style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: '#3b82f622' }}>
+            <RiCalculatorLine size={20} style={{ color: '#60a5fa' }} />
+          </div>
+          <div className="text-sm font-bold tracking-tight" style={{ color: C.fg }}>Health Calculator</div>
+          <div className="text-xs mt-1" style={{ color: C.mutedFg }}>BMI & calorie analysis</div>
+        </button>
+        <button
+          onClick={() => onNavigate('aitools')}
+          className="rounded-xl p-5 text-left transition-all duration-200 hover:scale-[1.02]"
+          style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}
+        >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: C.accent + '22' }}>
+            <RiChat3Line size={20} style={{ color: C.accent }} />
+          </div>
+          <div className="text-sm font-bold tracking-tight" style={{ color: C.fg }}>AI Assistant</div>
+          <div className="text-xs mt-1" style={{ color: C.mutedFg }}>Chat about fitness</div>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Diet Plan Screen ──
+function DietPlanScreen() {
+  const [dietLoading, setDietLoading] = useState(false)
+  const [dietPlan, setDietPlan] = useState<DietPlanResponse | null>(null)
+  const [dietError, setDietError] = useState<string | null>(null)
+  const [selectedDay, setSelectedDay] = useState(0)
+
+  // Diet form
+  const [goal, setGoal] = useState('Weight Loss')
+  const [preference, setPreference] = useState('No Preference')
+  const [restrictions, setRestrictions] = useState('')
+  const [calorieTarget, setCalorieTarget] = useState('2000')
+  const [mealsPerDay, setMealsPerDay] = useState('4')
+  const [numberOfDays, setNumberOfDays] = useState('7')
+
+  const inputStyle: React.CSSProperties = { background: C.input, color: C.fg, border: `1px solid ${C.border}` }
+
+  const handleGenerate = async () => {
+    setDietLoading(true)
+    setDietError(null)
+    try {
+      const msg = `Generate a personalized weekly diet plan with the following requirements:
+- Fitness Goal: ${goal}
+- Dietary Preference: ${preference}
+- Allergies/Restrictions: ${restrictions || 'None'}
+- Daily Calorie Target: ${calorieTarget} calories
+- Meals per day: ${mealsPerDay} (including snacks)
+- Number of days: ${numberOfDays}
+Please provide a complete ${numberOfDays}-day meal plan with breakfast, lunch, dinner, and snacks for each day, including macro information (protein, carbs, fats in grams) for every meal.`
+      const result = await callAIAgent(msg, DIET_PLAN_AGENT_ID)
+      const data = parseAgentResult(result)
+      if (data) {
+        setDietPlan(data as DietPlanResponse)
+        setSelectedDay(0)
+      } else {
+        setDietError('Failed to generate diet plan. Please try again.')
+      }
+    } catch {
+      setDietError('An error occurred. Please try again.')
+    }
+    setDietLoading(false)
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Hero Header */}
+      <div className="rounded-xl p-6 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${C.accent}22, ${C.card})`, border: `1px solid ${C.accent}33`, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
+        <div className="absolute top-0 right-0 w-40 h-40 opacity-10" style={{ background: `radial-gradient(circle, ${C.accent}, transparent)` }} />
+        <div className="relative z-10 flex items-start gap-4">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: C.accent + '33' }}>
+            <RiLeafLine size={28} style={{ color: C.accent }} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold tracking-tight mb-1" style={{ color: C.fg }}>AI Diet Plan Generator</h2>
+            <p className="text-sm leading-relaxed" style={{ color: C.mutedFg }}>
+              Get a personalized weekly meal plan with detailed macro breakdowns, tailored to your fitness goals, dietary preferences, and restrictions.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Form + Results Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Form Card */}
+        <div className="lg:col-span-1 rounded-xl p-6 h-fit lg:sticky lg:top-24" style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
+          <h3 className="text-base font-bold tracking-tight mb-5 flex items-center gap-2" style={{ color: C.fg }}>
+            <RiEditLine size={16} style={{ color: C.accent }} />
+            Your Preferences
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: C.mutedFg }}>Fitness Goal</label>
+              <select value={goal} onChange={e => setGoal(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style={inputStyle}>
+                <option>Weight Loss</option><option>Weight Gain</option><option>Maintenance</option><option>Muscle Building</option><option>Athletic Performance</option><option>Body Recomposition</option>
+              </select>
             </div>
-            <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: C.mutedFg }}>Dietary Preference</label>
+              <select value={preference} onChange={e => setPreference(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style={inputStyle}>
+                <option>No Preference</option><option>Vegetarian</option><option>Vegan</option><option>Keto</option><option>Paleo</option><option>Mediterranean</option><option>Low Carb</option><option>High Protein</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: C.mutedFg }}>Allergies / Restrictions</label>
+              <input type="text" value={restrictions} onChange={e => setRestrictions(e.target.value)} placeholder="e.g., nuts, gluten, dairy, shellfish" className="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style={inputStyle} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: C.mutedFg }}>Fitness Goal</label>
-                <select value={goal} onChange={e => setGoal(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style={{ background: C.input, color: C.fg, border: `1px solid ${C.border}` }}>
-                  <option>Weight Loss</option><option>Weight Gain</option><option>Maintenance</option><option>Muscle Building</option>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: C.mutedFg }}>Daily Calories</label>
+                <input type="number" value={calorieTarget} onChange={e => setCalorieTarget(e.target.value)} placeholder="2000" className="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style={inputStyle} />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: C.mutedFg }}>Meals / Day</label>
+                <select value={mealsPerDay} onChange={e => setMealsPerDay(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style={inputStyle}>
+                  <option>3</option><option>4</option><option>5</option><option>6</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: C.mutedFg }}>Dietary Preference</label>
-                <select value={preference} onChange={e => setPreference(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style={{ background: C.input, color: C.fg, border: `1px solid ${C.border}` }}>
-                  <option>No Preference</option><option>Vegetarian</option><option>Vegan</option><option>Keto</option><option>Paleo</option><option>Mediterranean</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: C.mutedFg }}>Allergies / Restrictions</label>
-                <input type="text" value={restrictions} onChange={e => setRestrictions(e.target.value)} placeholder="e.g., nuts, gluten, dairy" className="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style={{ background: C.input, color: C.fg, border: `1px solid ${C.border}` }} />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: C.mutedFg }}>Daily Calorie Target</label>
-                <input type="number" value={calorieTarget} onChange={e => setCalorieTarget(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style={{ background: C.input, color: C.fg, border: `1px solid ${C.border}` }} />
-              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: C.mutedFg }}>Number of Days</label>
+              <select value={numberOfDays} onChange={e => setNumberOfDays(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm outline-none" style={inputStyle}>
+                <option>3</option><option>5</option><option>7</option>
+              </select>
             </div>
             <button
               onClick={handleGenerate}
-              className="w-full mt-6 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 hover:opacity-90"
-              style={{ background: C.accent, color: '#fff' }}
+              disabled={dietLoading}
+              className="w-full px-6 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+              style={{ background: C.accent, color: '#fff', boxShadow: `0 0 20px ${C.accent}44` }}
             >
-              Generate Diet Plan
+              {dietLoading && <RiLoader4Line size={16} className="animate-spin" />}
+              {dietLoading ? 'Generating Plan...' : 'Generate Diet Plan'}
             </button>
           </div>
         </div>
-      )}
 
-      {/* Diet Loading */}
-      {dietLoading && (
-        <div className="rounded-xl p-8" style={{ background: C.card, border: `1px solid ${C.border}` }}>
-          <div className="flex items-center gap-3 mb-6">
-            <RiLoader4Line size={20} className="animate-spin" style={{ color: C.accent }} />
-            <span className="text-sm font-medium" style={{ color: C.fg }}>Generating your personalized diet plan...</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => <SkeletonBlock key={i} />)}
-          </div>
-        </div>
-      )}
-
-      {/* Diet Error */}
-      {dietError && (
-        <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: '#7f1d1d22', border: '1px solid #7f1d1d' }}>
-          <RiAlertLine size={18} className="text-red-400 shrink-0" />
-          <span className="text-sm text-red-300">{dietError}</span>
-        </div>
-      )}
-
-      {/* Diet Plan Results */}
-      {dietPlan && !dietLoading && (
-        <div className="rounded-xl p-6" style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-bold tracking-tight" style={{ color: C.fg }}>{dietPlan.plan_title || 'Your Diet Plan'}</h3>
-            <span className="text-xs px-3 py-1 rounded-full font-medium" style={{ background: C.accent + '22', color: C.accent }}>
-              {dietPlan.daily_calories_target} cal/day
-            </span>
-          </div>
-          <p className="text-sm mb-5" style={{ color: C.mutedFg }}>{dietPlan.overview}</p>
-
-          {/* Day Tabs */}
-          {Array.isArray(dietPlan.weekly_plan) && dietPlan.weekly_plan.length > 0 && (
-            <>
-              <div className="flex gap-2 mb-5 overflow-x-auto pb-2">
-                {dietPlan.weekly_plan.map((d, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedDay(i)}
-                    className="px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all"
-                    style={{
-                      background: selectedDay === i ? C.accent : C.secondary,
-                      color: selectedDay === i ? '#fff' : C.mutedFg,
-                    }}
-                  >
-                    {d.day}
-                  </button>
+        {/* Results Area */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Empty State */}
+          {!dietPlan && !dietLoading && !dietError && (
+            <div className="rounded-xl p-12 flex flex-col items-center justify-center text-center" style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5" style={{ background: C.secondary }}>
+                <RiLeafLine size={36} style={{ color: C.muted }} />
+              </div>
+              <h3 className="text-lg font-bold tracking-tight mb-2" style={{ color: C.fg }}>No Diet Plan Yet</h3>
+              <p className="text-sm max-w-md leading-relaxed" style={{ color: C.mutedFg }}>
+                Fill in your preferences on the left and click "Generate Diet Plan" to receive a personalized meal plan with detailed macro breakdowns for each meal.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-6 justify-center">
+                {['Breakfast', 'Lunch', 'Dinner', 'Snacks'].map((m, i) => (
+                  <span key={i} className="px-3 py-1.5 rounded-full text-xs" style={{ background: C.secondary, color: C.mutedFg, border: `1px solid ${C.border}` }}>
+                    {m}
+                  </span>
                 ))}
               </div>
-
-              {/* Meals */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {Array.isArray(dietPlan.weekly_plan[selectedDay]?.meals) && dietPlan.weekly_plan[selectedDay].meals.map((meal, mi) => (
-                  <div key={mi} className="rounded-xl p-4" style={{ background: C.secondary, border: `1px solid ${C.border}` }}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: C.accent }}>{meal.meal_type}</span>
-                      <span className="text-xs font-medium" style={{ color: C.mutedFg }}>{meal.calories} cal</span>
-                    </div>
-                    <h4 className="text-sm font-bold mb-2" style={{ color: C.fg }}>{meal.meal_name}</h4>
-                    <div className="flex gap-3 mb-3">
-                      <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#22c55e22', color: '#4ade80' }}>P: {meal.protein_g}g</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#3b82f622', color: '#60a5fa' }}>C: {meal.carbs_g}g</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#f59e0b22', color: '#fbbf24' }}>F: {meal.fats_g}g</span>
-                    </div>
-                    {Array.isArray(meal.ingredients) && (
-                      <div className="text-xs leading-relaxed" style={{ color: C.mutedFg }}>
-                        {meal.ingredients.join(', ')}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Daily Total */}
-              {dietPlan.weekly_plan[selectedDay]?.daily_total && (
-                <div className="mt-4 rounded-xl p-4 flex flex-wrap gap-4" style={{ background: C.muted }}>
-                  <span className="text-xs font-semibold" style={{ color: C.fg }}>Daily Total:</span>
-                  <span className="text-xs" style={{ color: C.mutedFg }}>{dietPlan.weekly_plan[selectedDay].daily_total.calories} cal</span>
-                  <span className="text-xs" style={{ color: '#4ade80' }}>P: {dietPlan.weekly_plan[selectedDay].daily_total.protein_g}g</span>
-                  <span className="text-xs" style={{ color: '#60a5fa' }}>C: {dietPlan.weekly_plan[selectedDay].daily_total.carbs_g}g</span>
-                  <span className="text-xs" style={{ color: '#fbbf24' }}>F: {dietPlan.weekly_plan[selectedDay].daily_total.fats_g}g</span>
-                </div>
-              )}
-            </>
+            </div>
           )}
 
-          {/* Tips */}
-          {Array.isArray(dietPlan.tips) && dietPlan.tips.length > 0 && (
-            <div className="mt-5">
-              <h4 className="text-sm font-bold mb-3 flex items-center gap-2" style={{ color: C.fg }}>
-                <RiLightbulbLine size={16} style={{ color: '#f59e0b' }} />
-                Nutrition Tips
-              </h4>
-              <div className="space-y-2">
-                {dietPlan.tips.map((tip, i) => (
-                  <div key={i} className="text-xs leading-relaxed pl-4" style={{ color: C.mutedFg, borderLeft: `2px solid ${C.accent}33` }}>
-                    {tip}
+          {/* Loading State */}
+          {dietLoading && (
+            <div className="rounded-xl p-8" style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
+              <div className="flex items-center gap-3 mb-6">
+                <RiLoader4Line size={20} className="animate-spin" style={{ color: C.accent }} />
+                <span className="text-sm font-medium" style={{ color: C.fg }}>Generating your personalized diet plan...</span>
+              </div>
+              <div className="space-y-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="rounded-xl p-4" style={{ background: C.secondary }}>
+                    <SkeletonBlock />
                   </div>
                 ))}
               </div>
             </div>
           )}
+
+          {/* Error State */}
+          {dietError && (
+            <div className="rounded-xl p-5 flex items-start gap-3" style={{ background: '#7f1d1d22', border: '1px solid #7f1d1d44' }}>
+              <RiAlertLine size={20} className="text-red-400 shrink-0 mt-0.5" />
+              <div>
+                <div className="text-sm font-medium text-red-300 mb-1">Generation Failed</div>
+                <div className="text-xs text-red-400">{dietError}</div>
+                <button onClick={handleGenerate} className="text-xs font-medium mt-2 px-3 py-1.5 rounded-lg transition-all hover:opacity-80" style={{ background: C.secondary, color: C.accent }}>
+                  Try Again
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Diet Plan Results */}
+          {dietPlan && !dietLoading && (
+            <>
+              {/* Plan Header */}
+              <div className="rounded-xl p-6" style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="text-lg font-bold tracking-tight" style={{ color: C.fg }}>{dietPlan.plan_title || 'Your Personalized Diet Plan'}</h3>
+                    <p className="text-sm mt-1 leading-relaxed" style={{ color: C.mutedFg }}>{dietPlan.overview}</p>
+                  </div>
+                  <span className="text-xs px-3 py-1.5 rounded-full font-semibold shrink-0 ml-4" style={{ background: C.accent + '22', color: C.accent }}>
+                    {dietPlan.daily_calories_target} cal/day
+                  </span>
+                </div>
+              </div>
+
+              {/* Day Tabs */}
+              {Array.isArray(dietPlan.weekly_plan) && dietPlan.weekly_plan.length > 0 && (
+                <>
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {dietPlan.weekly_plan.map((d, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedDay(i)}
+                        className="px-5 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200"
+                        style={{
+                          background: selectedDay === i ? C.accent : C.card,
+                          color: selectedDay === i ? '#fff' : C.mutedFg,
+                          border: `1px solid ${selectedDay === i ? C.accent : C.border}`,
+                          boxShadow: selectedDay === i ? `0 0 15px ${C.accent}33` : 'none',
+                        }}
+                      >
+                        {d.day}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Daily Total Summary Bar */}
+                  {dietPlan.weekly_plan[selectedDay]?.daily_total && (
+                    <div className="rounded-xl p-4 flex flex-wrap items-center gap-5" style={{ background: C.card, border: `1px solid ${C.border}` }}>
+                      <span className="text-xs font-bold" style={{ color: C.fg }}>
+                        {dietPlan.weekly_plan[selectedDay].day} Summary
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <RiFireLine size={14} style={{ color: '#f59e0b' }} />
+                        <span className="text-xs font-medium" style={{ color: C.fg }}>{dietPlan.weekly_plan[selectedDay].daily_total.calories} cal</span>
+                      </div>
+                      <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: '#22c55e22', color: '#4ade80' }}>
+                        Protein: {dietPlan.weekly_plan[selectedDay].daily_total.protein_g}g
+                      </span>
+                      <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: '#3b82f622', color: '#60a5fa' }}>
+                        Carbs: {dietPlan.weekly_plan[selectedDay].daily_total.carbs_g}g
+                      </span>
+                      <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: '#f59e0b22', color: '#fbbf24' }}>
+                        Fats: {dietPlan.weekly_plan[selectedDay].daily_total.fats_g}g
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Meals Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {Array.isArray(dietPlan.weekly_plan[selectedDay]?.meals) && dietPlan.weekly_plan[selectedDay].meals.map((meal, mi) => (
+                      <div key={mi} className="rounded-xl p-5 transition-all duration-200 hover:scale-[1.01]" style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg" style={{ background: C.accent + '22', color: C.accent }}>{meal.meal_type}</span>
+                          <span className="text-xs font-semibold flex items-center gap-1" style={{ color: C.fg }}>
+                            <RiFireLine size={12} style={{ color: '#f59e0b' }} />
+                            {meal.calories} cal
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-bold mb-3" style={{ color: C.fg }}>{meal.meal_name}</h4>
+
+                        {/* Macro pills */}
+                        <div className="flex gap-2 mb-3">
+                          <span className="text-[10px] px-2.5 py-1 rounded-lg font-medium" style={{ background: '#22c55e15', color: '#4ade80' }}>P: {meal.protein_g}g</span>
+                          <span className="text-[10px] px-2.5 py-1 rounded-lg font-medium" style={{ background: '#3b82f615', color: '#60a5fa' }}>C: {meal.carbs_g}g</span>
+                          <span className="text-[10px] px-2.5 py-1 rounded-lg font-medium" style={{ background: '#f59e0b15', color: '#fbbf24' }}>F: {meal.fats_g}g</span>
+                        </div>
+
+                        {/* Ingredients */}
+                        {Array.isArray(meal.ingredients) && meal.ingredients.length > 0 && (
+                          <div className="pt-3" style={{ borderTop: `1px solid ${C.border}` }}>
+                            <div className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: C.mutedFg }}>Ingredients</div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {meal.ingredients.map((ing, ii) => (
+                                <span key={ii} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: C.secondary, color: C.mutedFg }}>
+                                  {ing}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Tips */}
+              {Array.isArray(dietPlan.tips) && dietPlan.tips.length > 0 && (
+                <div className="rounded-xl p-6" style={{ background: C.card, border: `1px solid ${C.border}`, boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}>
+                  <h4 className="text-sm font-bold mb-4 flex items-center gap-2" style={{ color: C.fg }}>
+                    <RiLightbulbLine size={16} style={{ color: '#f59e0b' }} />
+                    Nutrition Tips & Recommendations
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {dietPlan.tips.map((tip, i) => (
+                      <div key={i} className="rounded-xl p-3 text-xs leading-relaxed flex items-start gap-2" style={{ background: C.secondary, color: C.mutedFg }}>
+                        <RiCheckLine size={14} className="shrink-0 mt-0.5" style={{ color: '#4ade80' }} />
+                        {tip}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Regenerate */}
+              <div className="flex justify-center">
+                <button
+                  onClick={handleGenerate}
+                  disabled={dietLoading}
+                  className="px-6 py-2.5 rounded-xl text-xs font-medium transition-all hover:opacity-80 disabled:opacity-50"
+                  style={{ background: C.secondary, color: C.mutedFg, border: `1px solid ${C.border}` }}
+                >
+                  Regenerate Plan
+                </button>
+              </div>
+            </>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -1384,7 +1542,8 @@ export default function Page() {
   const renderScreen = () => {
     switch (screen) {
       case 'landing': return <LandingPage onGetStarted={() => setScreen('dashboard')} />
-      case 'dashboard': return <DashboardScreen />
+      case 'dashboard': return <DashboardScreen onNavigate={setScreen} />
+      case 'dietplan': return <DietPlanScreen />
       case 'aitools': return <AIToolsScreen />
       case 'blog': return <BlogScreen />
       case 'profile': return <ProfileScreen />
